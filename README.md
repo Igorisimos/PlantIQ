@@ -1,4 +1,4 @@
-# PflanzenApp – Gärtner EFZ
+# PlantIQ
 
 Lern-App für Pflanzenkenntnisse (Katalog, Lernkarten, Prüfungsmodi).
 
