@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PflanzenApp - Beta v5.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep: #081810;
+  --header-grad: linear-gradient(135deg, #163420 0%, #204a26 55%, #2c5c2a 100%);
+  --brand: #A8D93A;
+  --brand-soft: #C9EB6E;
+  --brand-dark: #3E5A17;
+  --card-bg: #101F16;
+  --card-bg-2: #0C1811;
+  --card-border: rgba(168,217,58,0.22);
+  --text-main: #F2F7E9;
+  --text-muted: #8FA980;
+  --correct: #3FAE58;
+  --incorrect: #E2543A;
+  --radius-lg: 22px;
+  --radius-md: 16px;
+  --radius-sm: 10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+h1,h2,h3,.brand-font { font-family: 'Poppins', system-ui, sans-serif; }
+body { background: #000; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 10px; }
+.phone { width: 100%; max-width: 390px; height: 812px; background: var(--bg-deep); border-radius: 42px; display: flex; flex-direction: column; overflow: hidden; border: 6px solid #14140f; position: relative; box-shadow: 0 25px 60px rgba(0,0,0,0.85), 0 0 0 1px rgba(168,217,58,0.08); }
+
+.header { background: var(--header-grad); padding: 24px 20px 16px 20px; color: #FFF; position: relative; }
+.header::after { content: ""; position: absolute; inset: 0; background: radial-gradient(120% 80% at 100% 0%, rgba(168,217,58,0.18), transparent 60%); pointer-events: none; }
+.header-top { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1; }
+.header-logo-title { display: flex; align-items: center; gap: 10px; }
+.app-logo { width: 34px; height: 34px; border-radius: 9px; object-fit: cover; background: #fff; padding: 2px; }
+.header h1 { font-size: 15px; font-weight: 700; letter-spacing: 0.2px; }
+.badge { background: rgba(0,0,0,0.28); color: var(--brand-soft); padding: 4px 11px; border-radius: 20px; font-size: 10px; font-weight: 700; border: 1px solid rgba(168,217,58,0.3); }
+.progress-container { margin-top: 14px; position: relative; z-index: 1; }
+.progress-info { display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; margin-bottom: 5px; color: rgba(255,255,255,0.85); }
+.progress-bar { width: 100%; height: 7px; background: rgba(0,0,0,0.3); border-radius: 6px; overflow: hidden; }
+.progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--brand-dark), var(--brand)); border-radius: 6px; transition: width 0.3s ease; }
+
+.content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; background: linear-gradient(180deg, #0A1A10 0%, #081008 100%); }
+.page { display: none; height: 100%; flex-direction: column; overflow-y: auto; padding: 16px; }
+.page.active { display: flex; }
+.page::-webkit-scrollbar { width: 0; }
+
+.section-title { color: var(--text-main); font-size: 15px; font-weight: 700; margin-bottom: 12px; font-family: 'Poppins',sans-serif; }
+.section-sub { color: var(--text-muted); font-size: 12px; margin-top: -8px; margin-bottom: 14px; }
+
+.menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
+.menu-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius-md); padding: 16px 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; min-height: 104px; transition: transform 0.15s ease, background 0.15s ease; }
+.menu-card:active { transform: scale(0.96); background: var(--card-bg-2); }
+.menu-icon { font-size: 26px; margin-bottom: 8px; }
+.menu-title { color: #FFF; font-weight: 700; font-size: 13px; font-family: 'Poppins',sans-serif; }
+.menu-sub { color: var(--text-muted); font-size: 10px; margin-top: 3px; }
+
+.choice-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius-lg); padding: 20px; display: flex; align-items: center; gap: 14px; margin-bottom: 14px; cursor: pointer; transition: transform 0.15s ease, border-color 0.15s ease; }
+.choice-card:active { transform: scale(0.97); border-color: var(--brand); }
+.choice-icon { width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, var(--brand-dark), var(--brand)); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+.choice-text h3 { color: #FFF; font-size: 14px; margin-bottom: 3px; }
+.choice-text p { color: var(--text-muted); font-size: 11px; line-height: 1.4; }
+.choice-arrow { margin-left: auto; color: var(--brand); font-size: 18px; }
+
+.search-box { margin-bottom: 12px; position: relative; }
+.search-box input, .text-input { width: 100%; padding: 12px 15px 12px 38px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius-md); color: #FFF; outline: none; font-size: 13px; }
+.text-input { padding-left: 15px; }
+.search-box input:focus, .text-input:focus { border-color: var(--brand); }
+.search-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; pointer-events: none; }
+.search-hint { color: var(--text-muted); font-size: 10px; margin: -6px 0 10px 2px; }
+
+.plant-card { background: var(--card-bg); border-radius: var(--radius-sm); padding: 11px 12px; margin-bottom: 7px; display: flex; justify-content: space-between; align-items: center; border: 1px solid transparent; border-left: 3px solid var(--brand); cursor: pointer; transition: background 0.15s ease; }
+.plant-card:active { background: var(--card-bg-2); }
+.plant-card.wrong { border-left-color: var(--incorrect); }
+.plant-nr { color: var(--text-muted); font-size: 10px; font-weight: 700; min-width: 22px; }
+.plant-de { color: #FFF; font-weight: 600; font-size: 13px; }
+.plant-la { color: var(--brand-soft); font-style: italic; font-size: 11px; margin-top: 1px; }
+.plant-left { display: flex; align-items: center; gap: 10px; }
+.error-tag { background: var(--incorrect); color: #FFF; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 10px; }
+
+.card-box { background: var(--card-bg); border-radius: var(--radius-lg); border: 1px solid var(--card-border); padding: 22px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 15px; }
+.btn-main { width: 100%; padding: 13px; background: linear-gradient(135deg, var(--brand-dark), var(--brand)); color: #10200D; border: none; border-radius: var(--radius-md); font-weight: 700; font-size: 14px; margin-top: 8px; cursor: pointer; }
+.btn-option { background: var(--card-bg); border: 1px solid var(--card-border); color: #FFF; font-weight: 500; }
+.btn-toggle { background: var(--card-bg); border: 1px solid var(--card-border); color: var(--brand-soft); padding: 7px 13px; border-radius: var(--radius-sm); font-size: 11px; margin-bottom: 12px; cursor: pointer; font-weight: 600; }
+.btn-reset { background: transparent; border: 1px solid var(--incorrect); color: #ef5350; padding: 10px; font-size: 12px; border-radius: var(--radius-sm); margin-top: 15px; cursor: pointer; font-weight: 700; }
+.img-placeholder { width: 100%; height: 150px; background: var(--card-bg); border: 1px dashed var(--card-border); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 46px; margin-bottom: 15px; }
+
+.katalog-wrapper { display: flex; gap: 8px; height: 100%; overflow: hidden; position: relative; }
+.katalog-list { flex: 1; overflow-y: auto; padding-right: 4px; scroll-behavior: smooth; }
+.alphabet-sidebar { display: flex; flex-direction: column; justify-content: space-between; align-items: center; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius-sm); padding: 4px 2px; width: 20px; font-size: 8.5px; font-weight: 700; color: var(--text-muted); user-select: none; }
+.alphabet-sidebar span { cursor: pointer; width: 100%; text-align: center; }
+.alphabet-sidebar span:hover { color: var(--brand); }
+.letter-header { color: var(--brand); font-size: 12px; font-weight: 800; margin: 12px 0 5px 0; border-bottom: 1px solid var(--card-border); padding-bottom: 3px; font-family: 'Poppins',sans-serif; }
+
+.breadcrumb { color: var(--text-muted); font-size: 10px; margin-bottom: 10px; }
+.breadcrumb b { color: var(--brand-soft); }
+
+.group { margin-bottom: 8px; }
+.group-header { display: flex; align-items: center; gap: 10px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius-sm); padding: 11px 12px; cursor: pointer; }
+.group-header:active { background: var(--card-bg-2); }
+.group-icon { font-size: 16px; width: 22px; text-align: center; }
+.group-name { color: #FFF; font-weight: 600; font-size: 12.5px; flex: 1; }
+.group-count { color: var(--text-muted); font-size: 10px; margin-right: 4px; }
+.group-chevron { color: var(--brand); font-size: 11px; transition: transform 0.2s ease; }
+.group-chevron.open { transform: rotate(90deg); }
+.group-body { display: none; padding: 8px 0 4px 14px; border-left: 1px solid var(--card-border); margin-left: 10px; }
+.group-body.open { display: block; }
+.group.level-2 .group-header { background: var(--card-bg-2); }
+.group.level-3 .group-header { background: transparent; border-style: dashed; }
+
+.result-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(8, 24, 16, 0.88); display: none; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(4px); }
+.result-box { width: 170px; height: 170px; border-radius: 24px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+.result-box.correct { background: var(--correct); border: 3px solid #66bb6a; }
+.result-box.incorrect { background: var(--incorrect); border: 3px solid #ef5350; }
+.result-icon { font-size: 56px; color: #FFF; }
+.result-text { font-size: 18px; font-weight: 800; color: #FFF; text-transform: uppercase; margin-top: 5px; }
+
+.bottom-nav { background: var(--card-bg-2); height: 62px; display: flex; border-top: 1px solid var(--card-border); }
+.nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: rgba(255,255,255,0.45); font-size: 9.5px; font-weight: 600; cursor: pointer; border: none; background: none; }
+.nav-btn.active { color: var(--brand); }
+.nav-btn span { font-size: 16px; margin-bottom: 2px; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="header">
+    <div class="header-top">
+      <div class="header-logo-title">
+        <img src="logo Wyder.jpg" alt="Wyder Logo" class="app-logo" onerror="this.style.display='none'">
+        <h1 id="headerTitle">ÜBERSICHT</h1>
+      </div>
+      <span class="badge">BETA v5.0</span>
+    </div>
+    <div class="progress-container">
+      <div class="progress-info"><span>Gelernt</span><span id="progressText">0% (0 / 5)</span></div>
+      <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+    </div>
+  </div>
+  <div class="content">
+
+    <!-- HOME -->
+    <div id="page-home" class="page active">
+      <h2 class="section-title">Hauptmenü</h2>
+      <div class="menu-grid">
+        <div class="menu-card" onclick="switchPage('pflanzenliste', 'Pflanzenliste')"><div class="menu-icon">🌿</div><div class="menu-title">Pflanzenliste</div><div class="menu-sub">244 Pflanzen</div></div>
+        <div class="menu-card" onclick="switchPage('lernen', 'Lernen')"><div class="menu-icon">🎴</div><div class="menu-title">Lernen</div><div class="menu-sub">Karteikarten</div></div>
+        <div class="menu-card" onclick="switchPage('pruefung1', 'Prüfung Lvl 1')"><div class="menu-icon">🏆</div><div class="menu-title">Prüfung Lvl 1</div><div class="menu-sub">Auswahlmodus</div></div>
+        <div class="menu-card" onclick="switchPage('pruefung2', 'Prüfung Lvl 2')"><div class="menu-icon">✍️</div><div class="menu-title">Prüfung Lvl 2</div><div class="menu-sub">Schreibmodus</div></div>
+        <div class="menu-card" style="grid-column: span 2;" onclick="switchPage('fehler', 'Noch zu lernen')"><div class="menu-icon">⚠️</div><div class="menu-title">Noch zu lernen</div><div class="menu-sub" id="wrongCountSub">0 Fehlerhafte Pflanzen</div></div>
+      </div>
+    </div>
+
+    <!-- PFLANZENLISTE - CHOICE -->
+    <div id="page-pflanzenliste" class="page">
+      <h2 class="section-title">Wie möchtest du suchen?</h2>
+      <div class="choice-card" onclick="switchPage('alle', 'Alle Pflanzen')">
+        <div class="choice-icon">🔤</div>
+        <div class="choice-text"><h3>Alle Pflanzen</h3><p>Alphabetisch nach lateinischem Namen, mit Suche &amp; A–Z Leiste</p></div>
+        <div class="choice-arrow">➔</div>
+      </div>
+      <div class="choice-card" onclick="switchPage('gruppen', 'Pflanzengruppen')">
+        <div class="choice-icon">🗂️</div>
+        <div class="choice-text"><h3>Pflanzen nach Pflanzengruppen</h3><p>Geordnet nach Kategorien &amp; Unterkategorien, wie in der Pflanzenliste</p></div>
+        <div class="choice-arrow">➔</div>
+      </div>
+    </div>
+
+    <!-- ALLE PFLANZEN -->
+    <div id="page-alle" class="page" style="overflow:hidden;">
+      <button class="btn-toggle" onclick="switchPage('pflanzenliste', 'Pflanzenliste')">← Pflanzenliste</button>
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInputAlle" oninput="renderAlle()" placeholder="Suche (ab 3 Buchstaben)...">
+      </div>
+      <div class="katalog-wrapper">
+        <div class="katalog-list" id="plantListAlle"></div>
+        <div class="alphabet-sidebar" id="alphaSidebarAlle"></div>
+      </div>
+    </div>
+
+    <!-- PFLANZEN NACH GRUPPEN -->
+    <div id="page-gruppen" class="page">
+      <button class="btn-toggle" onclick="switchPage('pflanzenliste', 'Pflanzenliste')">← Pflanzenliste</button>
+      <div id="groupTree"></div>
+    </div>
+
+    <!-- PLANT DETAIL -->
+    <div id="page-detail" class="page">
+      <button class="btn-toggle" id="detailBackBtn" onclick="switchPage('pflanzenliste', 'Pflanzenliste')">← Zurück</button>
+      <div class="breadcrumb" id="detailBreadcrumb"></div>
+      <div class="img-placeholder" id="detailIcon">🌱</div>
+      <h2 id="detailDe" style="color:#FFF; font-size:19px; font-family:'Poppins',sans-serif;"></h2>
+      <p id="detailLa" style="color:var(--brand-soft); font-style:italic; font-size:15px; margin-bottom:15px;"></p>
+      <div style="background:var(--card-bg); padding:15px; border-radius:var(--radius-md); border:1px solid var(--card-border); color:var(--text-muted); font-size:12.5px; line-height:1.6;">
+        <strong style="color:#FFF; font-family:'Poppins',sans-serif; font-size:12px;">WEITERE DEUTSCHE NAMEN</strong><br>
+        <span id="detailSynonyms"></span><br><br>
+        <strong style="color:#FFF; font-family:'Poppins',sans-serif; font-size:12px;">NUMMER IN DER PFLANZENLISTE</strong><br>
+        <span id="detailNr"></span>
+      </div>
+    </div>
+
+    <!-- LERNEN -->
+    <div id="page-lernen" class="page">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:4px;">
+        <button class="btn-toggle" id="learnModeBtn" onclick="toggleLearnMode()" style="margin-bottom:0;">Modus: Deutsch → Latein</button>
+        <button class="btn-toggle" onclick="shuffleLearnDeck()" style="margin-bottom:0;">🔀 Neu mischen</button>
+      </div>
+      <div class="card-box" style="flex:1;">
+        <div id="learnPosition" style="color:var(--text-muted); font-size:11px; letter-spacing:0.5px; margin-bottom:10px;">Karte 1 von 244</div>
+        <h2 id="learnFront" style="color:#FFF; font-size: 22px; font-family:'Poppins',sans-serif;">Fächer-Ahorn</h2>
+        <p id="learnBack" style="color:var(--brand-soft); font-style:italic; margin-top:15px; font-size: 17px; display:none;">Acer palmatum</p>
+      </div>
+      <div style="display:flex; gap:8px; margin-top:10px;">
+        <button class="btn-main btn-option" onclick="prevLearnCard()" style="flex:1; margin-top:0;">← Zurück</button>
+        <button class="btn-main" id="learnFlipBtn" onclick="toggleLearnCard()" style="flex:2; margin-top:0;">Antwort anzeigen</button>
+        <button class="btn-main btn-option" onclick="nextLearnCard()" style="flex:1; margin-top:0;">Weiter →</button>
+      </div>
+    </div>
+
+    <!-- PRÜFUNG LEVEL 1 -->
+    <div id="page-pruefung1" class="page">
+      <button class="btn-toggle" id="p1ModeBtn" onclick="toggleP1Mode()">Modus: Deutsch → Latein wählen</button>
+      <div class="card-box">
+        <h3 style="color:var(--text-muted); font-size:11px; letter-spacing:0.5px;">LEVEL 1 · AUSWAHL</h3>
+        <h2 id="p1Question" style="color:#FFF; margin: 10px 0 15px 0; font-size: 19px; font-family:'Poppins',sans-serif;">Buchsbaum</h2>
+        <div id="p1Options" style="width:100%;"></div>
+      </div>
+      <button class="btn-reset" onclick="resetProgress()">Fortschritt zurücksetzen</button>
+    </div>
+
+    <!-- PRÜFUNG LEVEL 2 -->
+    <div id="page-pruefung2" class="page">
+      <button class="btn-toggle" id="p2ModeBtn" onclick="toggleP2Mode()">Modus: Deutsch → Latein schreiben</button>
+      <div class="card-box">
+        <h3 style="color:var(--text-muted); font-size:11px; letter-spacing:0.5px;">LEVEL 2 · SCHREIBEN</h3>
+        <h2 id="p2Question" style="color:#FFF; margin: 10px 0 15px 0; font-size: 19px; font-family:'Poppins',sans-serif;">Buchsbaum</h2>
+        <input type="text" id="p2Input" class="text-input" placeholder="Antwort eingeben..." autocomplete="off">
+        <button class="btn-main" onclick="checkAnswerLvl2()">Antwort prüfen</button>
+      </div>
+    </div>
+
+    <!-- NOCH ZU LERNEN -->
+    <div id="page-fehler" class="page">
+      <h2 class="section-title">Sortiert nach Fehlern (meiste zuerst)</h2>
+      <div id="wrongList"></div>
+    </div>
+
+    <div id="resultOverlay" class="result-overlay">
+      <div id="resultBox" class="result-box"><div id="resultIcon" class="result-icon">✓</div><div id="resultText" class="result-text">Richtig</div></div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn active" id="nav-home" onclick="switchPage('home', 'Übersicht')"><span>🏠</span>Home</button>
+    <button class="nav-btn" id="nav-pflanzenliste" onclick="switchPage('pflanzenliste', 'Pflanzenliste')"><span>🌿</span>Liste</button>
+    <button class="nav-btn" id="nav-lernen" onclick="switchPage('lernen', 'Lernen')"><span>🎴</span>Lernen</button>
+    <button class="nav-btn" id="nav-pruefung1" onclick="switchPage('pruefung1', 'Prüfung 1')"><span>🏆</span>Lvl 1</button>
+    <button class="nav-btn" id="nav-pruefung2" onclick="switchPage('pruefung2', 'Prüfung 2')"><span>✍️</span>Lvl 2</button>
+  </div>
+</div>
+
+<script>
+const plantsData = [
+{nr:1,art:"Euphorbia",sorte:"pulcherrima",la:"Euphorbia pulcherrima",de:["Weihnachtsstern", "Poinsettia", "Adventsstern"],cat:"Zierpflanzen"},
+{nr:2,art:"Ficus",sorte:"benjamina",la:"Ficus benjamina",de:["Birkenfeige", "Benjamin-Feige", "Benjamin-Gummibaum"],cat:"Zierpflanzen"},
+{nr:3,art:"Phalaenopsis",sorte:"Cultivars",la:"Phalaenopsis Cultivars",de:["Falterorchidee", "Malayenblume", "Schmetterlingsorchidee"],cat:"Zierpflanzen"},
+{nr:4,art:"Antirrhinum",sorte:"majus",la:"Antirrhinum majus",de:["Löwenmaul", "Garten-Löwenmaul", "Grosses Löwenmaul"],cat:"Sommerflor"},
+{nr:5,art:"Argyranthemum",sorte:"frutescens",la:"Argyranthemum frutescens",de:["Strauchmargerite"],cat:"Sommerflor"},
+{nr:6,art:"Begonia",sorte:"Semperflorens-Gruppe",la:"Begonia Semperflorens-Gruppe",de:["Immerblühende Begonie", "Friedhof-Begonie", "Eis-Begonie"],cat:"Sommerflor"},
+{nr:7,art:"Dahlia",sorte:"Cultivars",la:"Dahlia Cultivars",de:["Dahlie", "Georgine"],cat:"Sommerflor"},
+{nr:8,art:"Fuchsia",sorte:"Cultivars",la:"Fuchsia Cultivars",de:["Garten-Fuchsie"],cat:"Sommerflor"},
+{nr:9,art:"Helianthus",sorte:"annuus",la:"Helianthus annuus",de:["Sonnenblume", "Gewöhnliche Sonnenblume"],cat:"Sommerflor"},
+{nr:10,art:"Impatiens",sorte:"Neuguinea-Gruppe",la:"Impatiens Neuguinea-Gruppe",de:["Neu-Guinea-Impatiens", "Sonnen-Lieschen"],cat:"Sommerflor"},
+{nr:11,art:"Lobelia",sorte:"erinus",la:"Lobelia erinus",de:["Lobelie"],cat:"Sommerflor"},
+{nr:12,art:"Pelargonium",sorte:"Peltatum-Gruppe",la:"Pelargonium Peltatum-Gruppe",de:["Hänge-Geranie", "Efeu-Geranie", "Efeublättrige Pelargonie"],cat:"Sommerflor"},
+{nr:13,art:"Tagetes",sorte:"patula",la:"Tagetes patula",de:["Sammetblume"],cat:"Sommerflor"},
+{nr:14,art:"Zinnia",sorte:"elegans",la:"Zinnia elegans",de:["Garten-Zinnie", "Pracht-Zinnie"],cat:"Sommerflor"},
+{nr:15,art:"Viola",sorte:"cornuta",la:"Viola cornuta",de:["Horn-Veilchen", "Gehörntes Veilchen", "Pyrenäen-Stiefmütterchen"],cat:"Frühlingsflor"},
+{nr:16,art:"Viola",sorte:"x wittrockiana",la:"Viola x wittrockiana",de:["Garten-Stiefmütterchen", "Dänkeli", "Pensée"],cat:"Frühlingsflor"},
+{nr:17,art:"Bellis",sorte:"perennis",la:"Bellis perennis",de:["Gänseblümchen"],cat:"Frühlingsflor"},
+{nr:18,art:"Myosotis",sorte:"sylvatica",la:"Myosotis sylvatica",de:["Vergissmeinnicht"],cat:"Frühlingsflor"},
+{nr:19,art:"Calluna",sorte:"vulgaris",la:"Calluna vulgaris",de:["Besenheide", "Heidekraut (Gehölz)"],cat:"Herbstflor"},
+{nr:20,art:"Agave",sorte:"americana",la:"Agave americana",de:["Agave"],cat:"Kübelpflanzen"},
+{nr:21,art:"Nerium",sorte:"oleander",la:"Nerium oleander",de:["Oleander"],cat:"Kübelpflanzen"},
+{nr:22,art:"Citrus",sorte:"sinensis",la:"Citrus sinensis",de:["Orange"],cat:"Kübelpflanzen"},
+{nr:23,art:"Lantana",sorte:"camara",la:"Lantana camara",de:["Wandelröschen"],cat:"Kübelpflanzen"},
+{nr:24,art:"Laurus",sorte:"nobilis",la:"Laurus nobilis",de:["Lorbeerbaum"],cat:"Kübelpflanzen"},
+{nr:25,art:"Solanum",sorte:"jasminoides",la:"Solanum jasminoides",de:["Nachtschatten"],cat:"Kübelpflanzen"},
+{nr:26,art:"Aconitum",sorte:"napellus",la:"Aconitum napellus",de:["Blauer Eisenhut"],cat:"Blütenstauden"},
+{nr:27,art:"Ajuga",sorte:"reptans",la:"Ajuga reptans",de:["Kriechender Günsel"],cat:"Blütenstauden"},
+{nr:28,art:"Alchemilla",sorte:"mollis",la:"Alchemilla mollis",de:["Frauenmantel"],cat:"Blütenstauden"},
+{nr:29,art:"Anemone",sorte:"sylvestris",la:"Anemone sylvestris",de:["Wald-Windröschen"],cat:"Blütenstauden"},
+{nr:30,art:"Anemone",sorte:"x hybrida 'Honorine Jobert'",la:"Anemone x hybrida 'Honorine Jobert'",de:["Herbst-Anemone"],cat:"Blütenstauden"},
+{nr:31,art:"Anemone",sorte:"nemorosa",la:"Anemone nemorosa",de:["Busch-Windröschen"],cat:"Blütenstauden"},
+{nr:32,art:"Aquilegia",sorte:"vulgaris",la:"Aquilegia vulgaris",de:["Gewöhnliche Akelei"],cat:"Blütenstauden"},
+{nr:33,art:"Aruncus",sorte:"dioicus",la:"Aruncus dioicus",de:["Wald-Geissbart"],cat:"Blütenstauden"},
+{nr:34,art:"Aster",sorte:"amellus",la:"Aster amellus",de:["Kalk-Aster"],cat:"Blütenstauden"},
+{nr:35,art:"Aster",sorte:"Dumosus-Gruppe",la:"Aster Dumosus-Gruppe",de:["Kissen-Aster"],cat:"Blütenstauden"},
+{nr:36,art:"Astrantia",sorte:"major",la:"Astrantia major",de:["Sterndolde"],cat:"Blütenstauden"},
+{nr:37,art:"Aubrieta",sorte:"Cultivars",la:"Aubrieta Cultivars",de:["Blaukissen"],cat:"Blütenstauden"},
+{nr:38,art:"Brunnera",sorte:"macrophylla",la:"Brunnera macrophylla",de:["Kaukasusvergissmeinnicht"],cat:"Blütenstauden"},
+{nr:39,art:"Buphthalmum",sorte:"salicifolium",la:"Buphthalmum salicifolium",de:["Ochsenauge"],cat:"Blütenstauden"},
+{nr:40,art:"Calamintha",sorte:"nepeta ssp. nepeta",la:"Calamintha nepeta ssp. nepeta",de:["Berg-Minze"],cat:"Blütenstauden"},
+{nr:41,art:"Campanula",sorte:"trachelium",la:"Campanula trachelium",de:["Nesselblättrige Glockenblume"],cat:"Blütenstauden"},
+{nr:42,art:"Centaurea",sorte:"montana",la:"Centaurea montana",de:["Berg-Flockenblume"],cat:"Blütenstauden"},
+{nr:43,art:"Ceratostigma",sorte:"plumbaginoides",la:"Ceratostigma plumbaginoides",de:["Bleiwurz"],cat:"Blütenstauden"},
+{nr:44,art:"Dianthus",sorte:"carthusianorum",la:"Dianthus carthusianorum",de:["Karthäuser-Nelke"],cat:"Blütenstauden"},
+{nr:45,art:"Digitalis",sorte:"purpurea",la:"Digitalis purpurea",de:["Purpur-Fingerhut"],cat:"Blütenstauden"},
+{nr:46,art:"Echinacea",sorte:"purpurea",la:"Echinacea purpurea",de:["Purpur-Sonnenhut"],cat:"Blütenstauden"},
+{nr:47,art:"Epimedium",sorte:"x versicolor 'Sulphureum'",la:"Epimedium x versicolor 'Sulphureum'",de:["Elfenblume"],cat:"Blütenstauden"},
+{nr:48,art:"Eryngium",sorte:"alpinum",la:"Eryngium alpinum",de:["Edeldistel"],cat:"Blütenstauden"},
+{nr:49,art:"Euphorbia",sorte:"amygdaloides",la:"Euphorbia amygdaloides",de:["Mandelblättrige Wolfsmilch"],cat:"Blütenstauden"},
+{nr:50,art:"Fragaria",sorte:"vesca",la:"Fragaria vesca",de:["Wald-Erdbeere"],cat:"Blütenstauden"},
+{nr:51,art:"Gaura",sorte:"lindheimeri",la:"Gaura lindheimeri",de:["Prachtkerze"],cat:"Blütenstauden"},
+{nr:52,art:"Geranium",sorte:"x cantabrigiense",la:"Geranium x cantabrigiense",de:["Storchschnabel"],cat:"Blütenstauden"},
+{nr:53,art:"Geranium",sorte:"sanguineum",la:"Geranium sanguineum",de:["Storchschnabel"],cat:"Blütenstauden"},
+{nr:54,art:"Helleborus",sorte:"foetidus",la:"Helleborus foetidus",de:["Nieswurz", "Stinkende Nieswurz"],cat:"Blütenstauden"},
+{nr:55,art:"Hieracium",sorte:"pilosella",la:"Hieracium pilosella",de:["Kleines Habichtskraut"],cat:"Blütenstauden"},
+{nr:56,art:"Hosta",sorte:"sieboldiana",la:"Hosta sieboldiana",de:["Funkie"],cat:"Blütenstauden"},
+{nr:57,art:"Iris",sorte:"Germanica-Gruppe",la:"Iris Germanica-Gruppe",de:["Deutsche Schwertlilie"],cat:"Blütenstauden"},
+{nr:58,art:"Iris",sorte:"pseudacorus",la:"Iris pseudacorus",de:["Sumpf-Schwertlilie"],cat:"Blütenstauden"},
+{nr:59,art:"Lavandula",sorte:"angustifolia",la:"Lavandula angustifolia",de:["Lavendel", "Echter Lavendel"],cat:"Blütenstauden"},
+{nr:60,art:"Leucanthemum",sorte:"vulgare",la:"Leucanthemum vulgare",de:["Wiesen-Margerite"],cat:"Blütenstauden"},
+{nr:61,art:"Lychnis",sorte:"flos-cuculi",la:"Lychnis flos-cuculi",de:["Kuckucks-Lichtnelke"],cat:"Blütenstauden"},
+{nr:62,art:"Lythrum",sorte:"salicaria",la:"Lythrum salicaria",de:["Blutweiderich"],cat:"Blütenstauden"},
+{nr:63,art:"Nepeta",sorte:"x faassenii",la:"Nepeta x faassenii",de:["Katzenminze", "Blauminze"],cat:"Blütenstauden"},
+{nr:64,art:"Paeonia",sorte:"Lactiflora-Gruppe",la:"Paeonia Lactiflora-Gruppe",de:["Pfingstrose", "Garten-Pfingstrose"],cat:"Blütenstauden"},
+{nr:65,art:"Phlomis",sorte:"russeliana",la:"Phlomis russeliana",de:["Brandkraut"],cat:"Blütenstauden"},
+{nr:66,art:"Phlox",sorte:"Subulata-Gruppe",la:"Phlox Subulata-Gruppe",de:["Polster-Phlox"],cat:"Blütenstauden"},
+{nr:67,art:"Polygonatum",sorte:"multiflorum",la:"Polygonatum multiflorum",de:["Salomonssiegel"],cat:"Blütenstauden"},
+{nr:68,art:"Primula",sorte:"vulgaris",la:"Primula vulgaris",de:["Garten-Schlüsselblume", "Kissen-Primel", "Stängellose Schlüsselblume"],cat:"Blütenstauden"},
+{nr:69,art:"Pulsatilla",sorte:"vulgaris",la:"Pulsatilla vulgaris",de:["Küchenschelle", "Pelzanemone"],cat:"Blütenstauden"},
+{nr:70,art:"Rudbeckia",sorte:"fulgida 'Goldsturm'",la:"Rudbeckia fulgida 'Goldsturm'",de:["Gelber Sonnenhut"],cat:"Blütenstauden"},
+{nr:71,art:"Salvia",sorte:"pratensis",la:"Salvia pratensis",de:["Wiesen-Salbei"],cat:"Blütenstauden"},
+{nr:72,art:"Salvia",sorte:"nemorosa",la:"Salvia nemorosa",de:["Steppen-Salbei", "Hain-Salbei"],cat:"Blütenstauden"},
+{nr:73,art:"Saxifraga",sorte:"paniculata",la:"Saxifraga paniculata",de:["Steinbrech"],cat:"Blütenstauden"},
+{nr:74,art:"Sedum",sorte:"Herbstfreude'",la:"Sedum Herbstfreude'",de:["Fetthenne", "Purpur-Fetthenne"],cat:"Blütenstauden"},
+{nr:75,art:"Teucrium",sorte:"chamaedrys",la:"Teucrium chamaedrys",de:["Edel-Gamander"],cat:"Blütenstauden"},
+{nr:76,art:"Thymus",sorte:"pulegioides",la:"Thymus pulegioides",de:["Arznei-Feld-Thymian"],cat:"Blütenstauden"},
+{nr:77,art:"Verbascum",sorte:"nigrum",la:"Verbascum nigrum",de:["Königskerze"],cat:"Blütenstauden"},
+{nr:78,art:"Vinca",sorte:"minor",la:"Vinca minor",de:["Kleines Immergrün"],cat:"Blütenstauden"},
+{nr:79,art:"Viola",sorte:"odorata",la:"Viola odorata",de:["März-Veilchen"],cat:"Blütenstauden"},
+{nr:80,art:"Allium",sorte:"christophii",la:"Allium christophii",de:["Sternkugel-Lauch"],cat:"Zwiebelpflanzen"},
+{nr:81,art:"Convallaria",sorte:"majalis",la:"Convallaria majalis",de:["Maiglöckchen", "Maierisli", "Gewöhnliches Maiglöckchen"],cat:"Zwiebelpflanzen"},
+{nr:82,art:"Crocus",sorte:"vernus",la:"Crocus vernus",de:["Krokus", "Frühlings-Krokus"],cat:"Zwiebelpflanzen"},
+{nr:83,art:"Cyclamen",sorte:"coum",la:"Cyclamen coum",de:["Alpenveilchen"],cat:"Zwiebelpflanzen"},
+{nr:84,art:"Eranthis",sorte:"hyemalis",la:"Eranthis hyemalis",de:["Winterling"],cat:"Zwiebelpflanzen"},
+{nr:85,art:"Galanthus",sorte:"nivalis",la:"Galanthus nivalis",de:["Schneeglöckchen", "Kleines Schneeglöckchen"],cat:"Zwiebelpflanzen"},
+{nr:86,art:"Scilla",sorte:"siberica",la:"Scilla siberica",de:["Blaustern"],cat:"Zwiebelpflanzen"},
+{nr:87,art:"Narcissus",sorte:"Gruppen",la:"Narcissus Gruppen",de:["Narzisse", "Osterglocke"],cat:"Zwiebelpflanzen"},
+{nr:88,art:"Tulipa",sorte:"Gruppen",la:"Tulipa Gruppen",de:["Tulpen"],cat:"Zwiebelpflanzen"},
+{nr:89,art:"Allium",sorte:"schoenoprasum",la:"Allium schoenoprasum",de:["Schnitt-Lauch"],cat:"Gewürze"},
+{nr:90,art:"Levisticum",sorte:"officinale",la:"Levisticum officinale",de:["Liebstöckel", "Maggikraut"],cat:"Gewürze"},
+{nr:91,art:"Melissa",sorte:"officinalis",la:"Melissa officinalis",de:["Zitronen-Melisse"],cat:"Gewürze"},
+{nr:92,art:"Mentha",sorte:"x piperita",la:"Mentha x piperita",de:["Pfeffer-Minze", "Pfefferminze"],cat:"Gewürze"},
+{nr:93,art:"Ocimum",sorte:"basilicum",la:"Ocimum basilicum",de:["Basilikum", "Basilikumkraut (Lebensform: einjährige Pflanze)"],cat:"Gewürze"},
+{nr:94,art:"Origanum",sorte:"vulgare",la:"Origanum vulgare",de:["Oregano"],cat:"Gewürze"},
+{nr:95,art:"Petroselinum",sorte:"crispum",la:"Petroselinum crispum",de:["Petersilie (Lebensform: zweijährige Pflanze)"],cat:"Gewürze"},
+{nr:96,art:"Rosmarinus",sorte:"officinalis",la:"Rosmarinus officinalis",de:["Rosmarin"],cat:"Gewürze"},
+{nr:97,art:"Salvia",sorte:"officinalis",la:"Salvia officinalis",de:["Salbei"],cat:"Gewürze"},
+{nr:98,art:"Thymus",sorte:"vulgaris",la:"Thymus vulgaris",de:["Thymian"],cat:"Gewürze"},
+{nr:99,art:"Nymphaea",sorte:"1 Sorte",la:"Nymphaea 1 Sorte",de:["Seerose"],cat:"Sumpf- und Wasserpflanzen"},
+{nr:100,art:"Caltha",sorte:"palustris",la:"Caltha palustris",de:["Sumpf-Dotterblume"],cat:"Sumpf- und Wasserpflanzen"},
+{nr:101,art:"Asplenium",sorte:"scolopendrium",la:"Asplenium scolopendrium",de:["Hirschzungenfarn"],cat:"Gräser und Farne"},
+{nr:102,art:"Blechnum",sorte:"spicant",la:"Blechnum spicant",de:["Rippenfarn"],cat:"Gräser und Farne"},
+{nr:103,art:"Briza",sorte:"media",la:"Briza media",de:["Mittleres-Zittergras"],cat:"Gräser und Farne"},
+{nr:104,art:"Deschampsia",sorte:"cespitosa",la:"Deschampsia cespitosa",de:["Rasen-Schmiele"],cat:"Gräser und Farne"},
+{nr:105,art:"Dryopteris",sorte:"filix-mas",la:"Dryopteris filix-mas",de:["Wurmfarn"],cat:"Gräser und Farne"},
+{nr:106,art:"Luzula",sorte:"nivea",la:"Luzula nivea",de:["Schnee-Marbel", "Schneeweisse Hainsimse"],cat:"Gräser und Farne"},
+{nr:107,art:"Matteuccia",sorte:"struthiopteris",la:"Matteuccia struthiopteris",de:["Straussfarn", "Trichterfarn"],cat:"Gräser und Farne"},
+{nr:108,art:"Miscanthus",sorte:"sinensis",la:"Miscanthus sinensis",de:["Chinaschilf"],cat:"Gräser und Farne"},
+{nr:109,art:"Pennisetum",sorte:"alopecuroides",la:"Pennisetum alopecuroides",de:["Federborstengras"],cat:"Gräser und Farne"},
+{nr:110,art:"Acer",sorte:"campestre",la:"Acer campestre",de:["Feld-Ahorn"],cat:"Laubabwerfende Laubgehölze"},
+{nr:111,art:"Acer",sorte:"monspessulanum",la:"Acer monspessulanum",de:["Französischer-Ahorn"],cat:"Laubabwerfende Laubgehölze"},
+{nr:112,art:"Acer",sorte:"palmatum",la:"Acer palmatum",de:["Schlitz-Ahorn"],cat:"Laubabwerfende Laubgehölze"},
+{nr:113,art:"Acer",sorte:"platanoides",la:"Acer platanoides",de:["Spitz-Ahorn"],cat:"Laubabwerfende Laubgehölze"},
+{nr:114,art:"Acer",sorte:"pseudoplatanus",la:"Acer pseudoplatanus",de:["Berg-Ahorn"],cat:"Laubabwerfende Laubgehölze"},
+{nr:115,art:"Aesculus",sorte:"hippocastanum",la:"Aesculus hippocastanum",de:["Rosskastanie"],cat:"Laubabwerfende Laubgehölze"},
+{nr:116,art:"Alnus",sorte:"glutinosa",la:"Alnus glutinosa",de:["Schwarz-Erle"],cat:"Laubabwerfende Laubgehölze"},
+{nr:117,art:"Amelanchier",sorte:"lamarckii",la:"Amelanchier lamarckii",de:["Kupfer-Felsenbirne"],cat:"Laubabwerfende Laubgehölze"},
+{nr:118,art:"Amelanchier",sorte:"ovalis",la:"Amelanchier ovalis",de:["Gewöhnliche Felsenbirne"],cat:"Laubabwerfende Laubgehölze"},
+{nr:119,art:"Berberis",sorte:"vulgaris",la:"Berberis vulgaris",de:["Gewöhnliche Berberitze"],cat:"Laubabwerfende Laubgehölze"},
+{nr:120,art:"Betula",sorte:"pendula",la:"Betula pendula",de:["Hänge-Birke"],cat:"Laubabwerfende Laubgehölze"},
+{nr:121,art:"Calluna",sorte:"vulgaris",la:"Calluna vulgaris",de:["Besen-Heide", "Heidekraut"],cat:"Laubabwerfende Laubgehölze"},
+{nr:122,art:"Callicarpa",sorte:"bodinieri var. giraldii",la:"Callicarpa bodinieri var. giraldii",de:["Schönfrucht"],cat:"Laubabwerfende Laubgehölze"},
+{nr:123,art:"Carpinus",sorte:"betulus",la:"Carpinus betulus",de:["Hainbuche"],cat:"Laubabwerfende Laubgehölze"},
+{nr:124,art:"Caryopteris",sorte:"x clandonensis",la:"Caryopteris x clandonensis",de:["Bartblume"],cat:"Laubabwerfende Laubgehölze"},
+{nr:125,art:"Castanea",sorte:"sativa",la:"Castanea sativa",de:["Edel-Kastanie"],cat:"Laubabwerfende Laubgehölze"},
+{nr:126,art:"Catalpa",sorte:"bignonioides",la:"Catalpa bignonioides",de:["Trompetenbaum"],cat:"Laubabwerfende Laubgehölze"},
+{nr:127,art:"Cercidiphyllum",sorte:"japonicum",la:"Cercidiphyllum japonicum",de:["Kuchenbaum"],cat:"Laubabwerfende Laubgehölze"},
+{nr:128,art:"Cercis",sorte:"siliquastrum",la:"Cercis siliquastrum",de:["Judasbaum"],cat:"Laubabwerfende Laubgehölze"},
+{nr:129,art:"Cornus",sorte:"controversa",la:"Cornus controversa",de:["Etagen-Hartriegel"],cat:"Laubabwerfende Laubgehölze"},
+{nr:130,art:"Cornus",sorte:"kousa",la:"Cornus kousa",de:["japanischer Blumen-Hartriegel"],cat:"Laubabwerfende Laubgehölze"},
+{nr:131,art:"Cornus",sorte:"mas",la:"Cornus mas",de:["Tierlibaum", "Kornelkirsche"],cat:"Laubabwerfende Laubgehölze"},
+{nr:132,art:"Cornus",sorte:"sanguinea",la:"Cornus sanguinea",de:["Hartriegel"],cat:"Laubabwerfende Laubgehölze"},
+{nr:133,art:"Corylus",sorte:"avellana",la:"Corylus avellana",de:["Haselnuss"],cat:"Laubabwerfende Laubgehölze"},
+{nr:134,art:"Cotinus",sorte:"coggygria",la:"Cotinus coggygria",de:["Perückenstrauch"],cat:"Laubabwerfende Laubgehölze"},
+{nr:135,art:"Crataegus",sorte:"laevigata",la:"Crataegus laevigata",de:["Zweigriffliger Weissdorn"],cat:"Laubabwerfende Laubgehölze"},
+{nr:136,art:"Cytisus",sorte:"scoparius",la:"Cytisus scoparius",de:["Besenginster"],cat:"Laubabwerfende Laubgehölze"},
+{nr:137,art:"Daphne",sorte:"mezereum",la:"Daphne mezereum",de:["Seidelbast", "Gewöhnlicher Seidelbast"],cat:"Laubabwerfende Laubgehölze"},
+{nr:138,art:"Euonymus",sorte:"alatus",la:"Euonymus alatus",de:["Flügel-Spindelstrauch"],cat:"Laubabwerfende Laubgehölze"},
+{nr:139,art:"Euonymus",sorte:"europaeus",la:"Euonymus europaeus",de:["Pfaffenhütchen", "Gewöhnliches Pfaffenhütchen"],cat:"Laubabwerfende Laubgehölze"},
+{nr:140,art:"Fagus",sorte:"sylvatica",la:"Fagus sylvatica",de:["Rot-Buche"],cat:"Laubabwerfende Laubgehölze"},
+{nr:141,art:"Ficus",sorte:"carica",la:"Ficus carica",de:["Feigenbaum"],cat:"Laubabwerfende Laubgehölze"},
+{nr:142,art:"Forsythia",sorte:"x intermedia",la:"Forsythia x intermedia",de:["Forsythie", "Goldglöckchen"],cat:"Laubabwerfende Laubgehölze"},
+{nr:143,art:"Fraxinus",sorte:"excelsior",la:"Fraxinus excelsior",de:["Esche"],cat:"Laubabwerfende Laubgehölze"},
+{nr:144,art:"Fraxinus",sorte:"ornus",la:"Fraxinus ornus",de:["Blumen-Esche"],cat:"Laubabwerfende Laubgehölze"},
+{nr:145,art:"Gleditsia",sorte:"triacanthos 'Sunburst'",la:"Gleditsia triacanthos 'Sunburst'",de:["Christusdorn", "Gleditschie"],cat:"Laubabwerfende Laubgehölze"},
+{nr:146,art:"Hamamelis",sorte:"x intermedia",la:"Hamamelis x intermedia",de:["Zaubernuss"],cat:"Laubabwerfende Laubgehölze"},
+{nr:147,art:"Hibiscus",sorte:"syriacus",la:"Hibiscus syriacus",de:["Eibisch", "Hibiscus"],cat:"Laubabwerfende Laubgehölze"},
+{nr:148,art:"Hydrangea",sorte:"paniculata 'Grandiflora'",la:"Hydrangea paniculata 'Grandiflora'",de:["Rispen-Hortensie"],cat:"Laubabwerfende Laubgehölze"},
+{nr:149,art:"Jasminum",sorte:"nudiflorum",la:"Jasminum nudiflorum",de:["Winter-Jasmin"],cat:"Laubabwerfende Laubgehölze"},
+{nr:150,art:"Juglans",sorte:"regia",la:"Juglans regia",de:["Nussbaum"],cat:"Laubabwerfende Laubgehölze"},
+{nr:151,art:"Koelreuteria",sorte:"paniculata",la:"Koelreuteria paniculata",de:["Blasenbaum"],cat:"Laubabwerfende Laubgehölze"},
+{nr:152,art:"Kolkwitzia",sorte:"amabilis",la:"Kolkwitzia amabilis",de:["Kolkwitzie"],cat:"Laubabwerfende Laubgehölze"},
+{nr:153,art:"Lespedeza",sorte:"thunbergii",la:"Lespedeza thunbergii",de:["Buschklee"],cat:"Laubabwerfende Laubgehölze"},
+{nr:154,art:"Ligustrum",sorte:"ovalifolium",la:"Ligustrum ovalifolium",de:["Japanischer Liguster"],cat:"Laubabwerfende Laubgehölze"},
+{nr:155,art:"Ligustrum",sorte:"vulgare",la:"Ligustrum vulgare",de:["Gewöhnlicher Liguster"],cat:"Laubabwerfende Laubgehölze"},
+{nr:156,art:"Liquidambar",sorte:"styraciflua",la:"Liquidambar styraciflua",de:["Amberbaum"],cat:"Laubabwerfende Laubgehölze"},
+{nr:157,art:"Lonicera",sorte:"x purpusii",la:"Lonicera x purpusii",de:["Duft-Heckenkirsche"],cat:"Laubabwerfende Laubgehölze"},
+{nr:158,art:"Lonicera",sorte:"xylosteum",la:"Lonicera xylosteum",de:["Heckenkirsche", "Rote Heckenkirsche"],cat:"Laubabwerfende Laubgehölze"},
+{nr:159,art:"Magnolia",sorte:"stellata",la:"Magnolia stellata",de:["Stern-Magnolie"],cat:"Laubabwerfende Laubgehölze"},
+{nr:160,art:"Magnolia",sorte:"x soulangeana",la:"Magnolia x soulangeana",de:["Tulpen-Magnolie"],cat:"Laubabwerfende Laubgehölze"},
+{nr:161,art:"Malus",sorte:"floribunda",la:"Malus floribunda",de:["Zier-Apfel"],cat:"Laubabwerfende Laubgehölze"},
+{nr:162,art:"Paeonia",sorte:"x suffruticosa",la:"Paeonia x suffruticosa",de:["Strauch-Pfingstrose"],cat:"Laubabwerfende Laubgehölze"},
+{nr:163,art:"Parrotia",sorte:"persica",la:"Parrotia persica",de:["Parrotie"],cat:"Laubabwerfende Laubgehölze"},
+{nr:164,art:"Perovskia",sorte:"atriplicifolia",la:"Perovskia atriplicifolia",de:["Silber-Perowskie", "Silberstrauch"],cat:"Laubabwerfende Laubgehölze"},
+{nr:165,art:"Platanus",sorte:"x hispanica",la:"Platanus x hispanica",de:["Platane"],cat:"Laubabwerfende Laubgehölze"},
+{nr:166,art:"Prunus",sorte:"cerasifera 'Woodii'",la:"Prunus cerasifera 'Woodii'",de:["Blut-Pflaume", "Kirsch-Pflaume"],cat:"Laubabwerfende Laubgehölze"},
+{nr:167,art:"Prunus",sorte:"padus",la:"Prunus padus",de:["Trauben-Kirsche"],cat:"Laubabwerfende Laubgehölze"},
+{nr:168,art:"Prunus",sorte:"serrulata 'Kanzan'",la:"Prunus serrulata 'Kanzan'",de:["Japanische Zier-Kirsche", "Japanische Blüten-Kirsche"],cat:"Laubabwerfende Laubgehölze"},
+{nr:169,art:"Quercus",sorte:"robur",la:"Quercus robur",de:["Stiel-Eiche"],cat:"Laubabwerfende Laubgehölze"},
+{nr:170,art:"Rhamnus",sorte:"cathartica",la:"Rhamnus cathartica",de:["Kreuzdorn"],cat:"Laubabwerfende Laubgehölze"},
+{nr:171,art:"Ribes",sorte:"alpinum",la:"Ribes alpinum",de:["Alpen-Johannisbeere"],cat:"Laubabwerfende Laubgehölze"},
+{nr:172,art:"Rosa",sorte:"canina",la:"Rosa canina",de:["Hunds-Rose"],cat:"Laubabwerfende Laubgehölze"},
+{nr:173,art:"Rosa",sorte:"Gruppen",la:"Rosa Gruppen",de:["Rose"],cat:"Laubabwerfende Laubgehölze"},
+{nr:174,art:"Salix",sorte:"daphnoides",la:"Salix daphnoides",de:["Reif-Weide"],cat:"Laubabwerfende Laubgehölze"},
+{nr:175,art:"Sambucus",sorte:"nigra",la:"Sambucus nigra",de:["Schwarzer Holunder"],cat:"Laubabwerfende Laubgehölze"},
+{nr:176,art:"Sambucus",sorte:"racemosa",la:"Sambucus racemosa",de:["Roter Holunder"],cat:"Laubabwerfende Laubgehölze"},
+{nr:177,art:"Styphnolobium",sorte:"japonica",la:"Styphnolobium japonica",de:["Schnurbaum"],cat:"Laubabwerfende Laubgehölze"},
+{nr:178,art:"Sorbus",sorte:"aucuparia",la:"Sorbus aucuparia",de:["Vogelbeere", "Eberesche"],cat:"Laubabwerfende Laubgehölze"},
+{nr:179,art:"Syringa",sorte:"meyeri 'Palibin'",la:"Syringa meyeri 'Palibin'",de:["Zwerg-Flieder"],cat:"Laubabwerfende Laubgehölze"},
+{nr:180,art:"Syringa",sorte:"vulgaris",la:"Syringa vulgaris",de:["Gewöhnlicher Flieder"],cat:"Laubabwerfende Laubgehölze"},
+{nr:181,art:"Tilia",sorte:"cordata",la:"Tilia cordata",de:["Winter-Linde"],cat:"Laubabwerfende Laubgehölze"},
+{nr:182,art:"Tilia",sorte:"platyphyllos",la:"Tilia platyphyllos",de:["Sommer-Linde"],cat:"Laubabwerfende Laubgehölze"},
+{nr:183,art:"Vaccinium",sorte:"corymbosum",la:"Vaccinium corymbosum",de:["Amerikanische Heidelbeere"],cat:"Laubabwerfende Laubgehölze"},
+{nr:184,art:"Viburnum",sorte:"lantana",la:"Viburnum lantana",de:["Wolliger Schneeball"],cat:"Laubabwerfende Laubgehölze"},
+{nr:185,art:"Viburnum",sorte:"opulus",la:"Viburnum opulus",de:["Gemeiner Schneeball"],cat:"Laubabwerfende Laubgehölze"},
+{nr:186,art:"Vitex",sorte:"agnus-castus",la:"Vitex agnus-castus",de:["Mönchspfeffer"],cat:"Laubabwerfende Laubgehölze"},
+{nr:187,art:"Abelia",sorte:"x grandiflora",la:"Abelia x grandiflora",de:["Abelie"],cat:"Immergrüne Laubgehölze"},
+{nr:188,art:"Buxus",sorte:"sempervirens",la:"Buxus sempervirens",de:["Buchs", "Buchsbaum"],cat:"Immergrüne Laubgehölze"},
+{nr:189,art:"Erica",sorte:"carnea",la:"Erica carnea",de:["Schnee-Heide"],cat:"Immergrüne Laubgehölze"},
+{nr:190,art:"Osmanthus",sorte:"heterophyllus",la:"Osmanthus heterophyllus",de:["Stachelblättrige Duftblüte"],cat:"Immergrüne Laubgehölze"},
+{nr:191,art:"Osmanthus",sorte:"x burkwoodii",la:"Osmanthus x burkwoodii",de:["Burkwoods Duftblüte"],cat:"Immergrüne Laubgehölze"},
+{nr:192,art:"Photinia",sorte:"x fraseri 'Red Robin'",la:"Photinia x fraseri 'Red Robin'",de:["Glanzmispel"],cat:"Immergrüne Laubgehölze"},
+{nr:193,art:"Phyllostachys",sorte:"aurea",la:"Phyllostachys aurea",de:["Bambus", "Goldener Flachrohrbambus"],cat:"Immergrüne Laubgehölze"},
+{nr:194,art:"Prunus",sorte:"lusitanica 'Angustifolia'",la:"Prunus lusitanica 'Angustifolia'",de:["Portugiesische Lorbeer-Kirsche"],cat:"Immergrüne Laubgehölze"},
+{nr:195,art:"Rhododendron",sorte:"Catawbiense-Gruppe",la:"Rhododendron Catawbiense-Gruppe",de:["Rhododendron"],cat:"Immergrüne Laubgehölze"},
+{nr:196,art:"Rhododendron",sorte:"ferrugineum",la:"Rhododendron ferrugineum",de:["Rostblättrige Alpenrose"],cat:"Immergrüne Laubgehölze"},
+{nr:197,art:"Viburnum",sorte:"tinus",la:"Viburnum tinus",de:["Mittelmeer-Schneeball"],cat:"Immergrüne Laubgehölze"},
+{nr:198,art:"Viburnum",sorte:"x bodnantense",la:"Viburnum x bodnantense",de:["Schneeball"],cat:"Immergrüne Laubgehölze"},
+{nr:199,art:"Clematis",sorte:"montana var. rubens",la:"Clematis montana var. rubens",de:["Clematis"],cat:"Schling- und Kletterpflanzen"},
+{nr:200,art:"Hedera",sorte:"helix",la:"Hedera helix",de:["Efeu"],cat:"Schling- und Kletterpflanzen"},
+{nr:201,art:"Hydrangea",sorte:"anomala subsp. petiolaris",la:"Hydrangea anomala subsp. petiolaris",de:["Kletter-Hortensie"],cat:"Schling- und Kletterpflanzen"},
+{nr:202,art:"Parthenocissus",sorte:"tricuspidata 'Veitchii'",la:"Parthenocissus tricuspidata 'Veitchii'",de:["Veitchii"],cat:"Schling- und Kletterpflanzen"},
+{nr:203,art:"Wisteria",sorte:"sinensis",la:"Wisteria sinensis",de:["Glyzine", "Chinesischer Blauregen"],cat:"Schling- und Kletterpflanzen"},
+{nr:204,art:"Abies",sorte:"alba",la:"Abies alba",de:["Tanne", "Weiss-Tanne"],cat:"Nadelgehölze"},
+{nr:205,art:"Cedrus",sorte:"deodara",la:"Cedrus deodara",de:["Himalaya-Zeder"],cat:"Nadelgehölze"},
+{nr:206,art:"Ginkgo",sorte:"biloba",la:"Ginkgo biloba",de:["Ginkgo"],cat:"Nadelgehölze"},
+{nr:207,art:"Juniperus",sorte:"communis",la:"Juniperus communis",de:["Gewöhnlicher Wacholder-Wacholder"],cat:"Nadelgehölze"},
+{nr:208,art:"Larix",sorte:"decidua",la:"Larix decidua",de:["Lärche"],cat:"Nadelgehölze"},
+{nr:209,art:"Picea",sorte:"abies",la:"Picea abies",de:["Fichte"],cat:"Nadelgehölze"},
+{nr:210,art:"Pinus",sorte:"cembra",la:"Pinus cembra",de:["Arve", "Zirbel-Kiefer"],cat:"Nadelgehölze"},
+{nr:211,art:"Pinus",sorte:"mugo",la:"Pinus mugo",de:["Berg-Föhre"],cat:"Nadelgehölze"},
+{nr:212,art:"Pinus",sorte:"nigra ssp. nigra",la:"Pinus nigra ssp. nigra",de:["Schwarzkiefer"],cat:"Nadelgehölze"},
+{nr:213,art:"Pinus",sorte:"sylvestris",la:"Pinus sylvestris",de:["Föhre", "Wald-Föhre", "Wald-Kiefer"],cat:"Nadelgehölze"},
+{nr:214,art:"Thuja",sorte:"occidentalis 'Smaragd'",la:"Thuja occidentalis 'Smaragd'",de:["Abendländischer Lebensbaum"],cat:"Nadelgehölze"},
+{nr:215,art:"Taxus",sorte:"baccata",la:"Taxus baccata",de:["Eibe"],cat:"Nadelgehölze"},
+{nr:216,art:"Chamaecyparis",sorte:"lawsoniana 'Alumii'",la:"Chamaecyparis lawsoniana 'Alumii'",de:["Lawsons-Scheinzypresse"],cat:"Nadelgehölze"},
+{nr:217,art:"Echinochloa",sorte:"crus-galli",la:"Echinochloa crus-galli",de:["Hirse", "Gewöhnliche Hühnerhirse"],cat:"Beikraut"},
+{nr:218,art:"Rumex",sorte:"obtusifolius",la:"Rumex obtusifolius",de:["Stumpfblättriger Ampfer", "Blacke", "Placke"],cat:"Beikraut"},
+{nr:219,art:"Taraxacum",sorte:"officinale",la:"Taraxacum officinale",de:["Löwenzahn", "Pusteblume", "Kuhblume", "Butterblume"],cat:"Beikraut"},
+{nr:220,art:"Urtica",sorte:"dioica",la:"Urtica dioica",de:["Brennessel", "Grosse Brennessel"],cat:"Beikraut"},
+{nr:221,art:"Convolvulus",sorte:"arvensis",la:"Convolvulus arvensis",de:["Ackerwinde"],cat:"Beikraut"},
+{nr:222,art:"Elymus",sorte:"repens",la:"Elymus repens",de:["Quecke"],cat:"Beikraut"},
+{nr:223,art:"Equisetum",sorte:"arvense",la:"Equisetum arvense",de:["Schachtelhalm Katzenschwanz"],cat:"Beikraut"},
+{nr:224,art:"Galinsoga",sorte:"parviflora",la:"Galinsoga parviflora",de:["Kleinblütiges Knopfkraut"],cat:"Beikraut"},
+{nr:225,art:"Plantago",sorte:"major",la:"Plantago major",de:["Breitwegerich"],cat:"Beikraut"},
+{nr:226,art:"Ranunculus",sorte:"repens",la:"Ranunculus repens",de:["Hahnenfuss"],cat:"Beikraut"},
+{nr:227,art:"Stellaria",sorte:"media",la:"Stellaria media",de:["Vogelmiere"],cat:"Beikraut"},
+{nr:228,art:"Taraxacum",sorte:"officinale",la:"Taraxacum officinale",de:["Löwenzahn"],cat:"Beikraut"},
+{nr:229,art:"Trifolium",sorte:"repens",la:"Trifolium repens",de:["Weissklee"],cat:"Beikraut"},
+{nr:230,art:"Urtica",sorte:"dioica",la:"Urtica dioica",de:["Brennnessel"],cat:"Beikraut"},
+{nr:231,art:"Aegopodium",sorte:"podagraria",la:"Aegopodium podagraria",de:["Giersch"],cat:"Beikraut"},
+{nr:232,art:"Prunus",sorte:"laurocerasus",la:"Prunus laurocerasus",de:["Kirschlorbeer", "Lorbeer-Kirsche"],cat:"Neophyt"},
+{nr:233,art:"Trachycarpus",sorte:"fortunei",la:"Trachycarpus fortunei",de:["Hanfpalme", "Chinesische Hanfpalme"],cat:"Neophyt"},
+{nr:234,art:"Ailanthus",sorte:"altissima",la:"Ailanthus altissima",de:["Götterbaum"],cat:"Neophyt"},
+{nr:235,art:"Buddleja",sorte:"davidii",la:"Buddleja davidii",de:["Sommerflieder"],cat:"Neophyt"},
+{nr:236,art:"Erigeron",sorte:"annuus",la:"Erigeron annuus",de:["einjähriges Berufkraut"],cat:"Neophyt"},
+{nr:237,art:"Heracleum",sorte:"mantegazzianum",la:"Heracleum mantegazzianum",de:["Riesen-Bärenklau"],cat:"Neophyt"},
+{nr:238,art:"Impatiens",sorte:"glandulifera",la:"Impatiens glandulifera",de:["Drüsiges Springkraut"],cat:"Neophyt"},
+{nr:239,art:"Reynoutria",sorte:"japonica",la:"Reynoutria japonica",de:["Japanischer Staudenknöterich"],cat:"Neophyt"},
+{nr:240,art:"Rhus",sorte:"typhina",la:"Rhus typhina",de:["Essigbaum"],cat:"Neophyt"},
+{nr:241,art:"Robinial",sorte:"pseudoacacia",la:"Robinial pseudoacacia",de:["Robine", "Falsche Akazie"],cat:"Neophyt"},
+{nr:242,art:"Senecio",sorte:"jacobaea",la:"Senecio jacobaea",de:["Jakobs-Kreuzkraut"],cat:"Neophyt"},
+{nr:243,art:"Solidago",sorte:"canadensis",la:"Solidago canadensis",de:["Kanadische Goldrute"],cat:"Neophyt"},
+{nr:244,art:"Fallopia",sorte:"baldschuanica",la:"Fallopia baldschuanica",de:["Schling-Flügelknöterich"],cat:"Neophyt"}
+];
+
+
+const categoryTree = [
+  { name: 'Zierpflanzen', icon: '🌸', children: [
+      { name: 'Wechselflor', icon: '🔄', children: [
+          { name: 'Sommerflor', icon: '☀️' },
+          { name: 'Frühlingsflor', icon: '🌷' },
+          { name: 'Herbstflor', icon: '🍂' }
+      ]},
+      { name: 'Kübelpflanzen', icon: '🪴' }
+  ]},
+  { name: 'Stauden', icon: '🌼', children: [
+      { name: 'Blütenstauden', icon: '🌷' },
+      { name: 'Zwiebelpflanzen', icon: '🌱' },
+      { name: 'Gewürze', icon: '🌿' },
+      { name: 'Sumpf- und Wasserpflanzen', icon: '💧' },
+      { name: 'Gräser und Farne', icon: '🌾' }
+  ]},
+  { name: 'Gehölze', icon: '🌳', children: [
+      { name: 'Laubabwerfende Laubgehölze', icon: '🍁' },
+      { name: 'Immergrüne Laubgehölze', icon: '🌲' },
+      { name: 'Schling- und Kletterpflanzen', icon: '🧵' },
+      { name: 'Nadelgehölze', icon: '🌲' }
+  ]},
+  { name: 'Beikraut', icon: '🍀' },
+  { name: 'Neophyt', icon: '⚠️' }
+];
+
+const catIconLookup = {};
+(function collectIcons(nodes){
+  nodes.forEach(n => { catIconLookup[n.name] = n.icon; if(n.children) collectIcons(n.children); });
+})(categoryTree);
+
+let learnedPlants = JSON.parse(localStorage.getItem('learnedPlantsV2')) || []; // Array von Nr.
+let errorStats = JSON.parse(localStorage.getItem('errorStatsV2')) || {}; // { nr: count }
+
+let learnModeDE = true;
+let p1ModeDE = true;
+let p2ModeDE = true;
+let lastListPage = 'pflanzenliste';
+let learnDeck = [];
+let learnPos = 0;
+let currentP1Plant = null;
+let currentP2Plant = null;
+
+function randomPlant(excludeNr) {
+  let pool = plantsData;
+  if (excludeNr !== undefined) pool = plantsData.filter(p => p.nr !== excludeNr);
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function randomDistractors(correctPlant, count) {
+  const pool = plantsData.filter(p => p.nr !== correctPlant.nr);
+  const picked = [];
+  while (picked.length < count && pool.length > 0) {
+    const idx = Math.floor(Math.random() * pool.length);
+    picked.push(pool.splice(idx, 1)[0]);
+  }
+  return picked;
+}
+
+function updateUI() {
+  const count = learnedPlants.length;
+  const pct = Math.round((count / plantsData.length) * 100);
+  document.getElementById('progressText').innerText = `${pct}% (${count} / ${plantsData.length})`;
+  document.getElementById('progressFill').style.width = `${pct}%`;
+
+  const sortedErrors = Object.keys(errorStats)
+    .filter(k => errorStats[k] > 0)
+    .sort((a,b) => errorStats[b] - errorStats[a]);
+
+  document.getElementById('wrongCountSub').innerText = `${sortedErrors.length} Fehlerhafte Pflanzen`;
+
+  const wContainer = document.getElementById('wrongList');
+  if (sortedErrors.length === 0) {
+    wContainer.innerHTML = '<p style="color:var(--text-muted); font-size:13px;">Keine fehlerhaften Pflanzen! Perfekt!</p>';
+  } else {
+    wContainer.innerHTML = sortedErrors.map(nrKey => {
+      const p = plantsData.find(item => item.nr === parseInt(nrKey)) || { de: [nrKey], la: nrKey };
+      return `<div class="plant-card wrong">
+                <div><div class="plant-de">${p.de[0]}</div><div class="plant-la">${p.la}</div></div>
+                <span class="error-tag">${errorStats[nrKey]}x Falsch</span>
+              </div>`;
+    }).join('');
+  }
+}
+
+// ---------- ALLE PFLANZEN ----------
+function renderAlleSidebar() {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+  document.getElementById('alphaSidebarAlle').innerHTML = alphabet.map(letter =>
+    `<span onclick="scrollToLetter('${letter}')">${letter}</span>`
+  ).join('');
+}
+
+function scrollToLetter(letter) {
+  const target = document.getElementById('letter-' + letter);
+  if (target) target.scrollIntoView({ behavior: 'smooth' });
+}
+
+function renderAlle() {
+  const q = document.getElementById('searchInputAlle').value.trim().toLowerCase();
+  const sorted = [...plantsData].sort((a,b) => a.la.localeCompare(b.la));
+  const container = document.getElementById('plantListAlle');
+  const sidebar = document.getElementById('alphaSidebarAlle');
+  container.innerHTML = "";
+
+  if (q.length >= 3) {
+    sidebar.style.visibility = 'hidden';
+    const matches = sorted.filter(p =>
+      p.la.toLowerCase().startsWith(q) ||
+      p.de.some(n => n.toLowerCase().startsWith(q)) ||
+      p.la.toLowerCase().includes(q)
+    );
+    if (matches.length === 0) {
+      container.innerHTML = '<p style="color:var(--text-muted); font-size:12px; margin-top:10px;">Keine Treffer.</p>';
+      return;
+    }
+    matches.forEach(p => container.innerHTML += plantRowHtml(p));
+  } else {
+    sidebar.style.visibility = 'visible';
+    let currentLetter = "";
+    sorted.forEach(p => {
+      const firstChar = p.la.charAt(0).toUpperCase();
+      if (firstChar !== currentLetter) {
+        currentLetter = firstChar;
+        container.innerHTML += `<div class="letter-header" id="letter-${currentLetter}">${currentLetter}</div>`;
+      }
+      container.innerHTML += plantRowHtml(p);
+    });
+  }
+}
+
+function plantRowHtml(p) {
+  return `
+    <div class="plant-card" onclick="openDetail(${p.nr}, 'alle')">
+      <div class="plant-left">
+        <div><div class="plant-de">${p.de[0]}</div><div class="plant-la">${p.la}</div></div>
+      </div>
+      <span style="color:var(--brand);">➔</span>
+    </div>`;
+}
+
+// ---------- PFLANZEN NACH GRUPPEN ----------
+function plantsInCat(catName) {
+  return plantsData.filter(p => p.cat === catName).sort((a,b) => a.nr - b.nr);
+}
+
+function countDescendants(node) {
+  let count = plantsInCat(node.name).length;
+  if (node.children) node.children.forEach(c => count += countDescendants(c));
+  return count;
+}
+
+function renderGroupNode(node, level) {
+  const direct = plantsInCat(node.name);
+  const total = countDescendants(node);
+  const bodyId = 'body-' + node.name.replace(/[^a-zA-Z0-9]/g, '');
+  let inner = '';
+  direct.forEach(p => { inner += plantRowGroupHtml(p); });
+  if (node.children) node.children.forEach(child => { inner += renderGroupNode(child, level + 1); });
+
+  return `
+    <div class="group level-${level}">
+      <div class="group-header" onclick="toggleGroup(this, '${bodyId}')">
+        <span class="group-icon">${node.icon || '🌱'}</span>
+        <span class="group-name">${node.name}</span>
+        <span class="group-count">${total}</span>
+        <span class="group-chevron" id="chev-${bodyId}">›</span>
+      </div>
+      <div class="group-body" id="${bodyId}">${inner}</div>
+    </div>`;
+}
+
+function plantRowGroupHtml(p) {
+  return `
+    <div class="plant-card" onclick="openDetail(${p.nr}, 'gruppen')">
+      <div class="plant-left">
+        <span class="plant-nr">${p.nr}</span>
+        <div><div class="plant-de">${p.de[0]}</div><div class="plant-la">${p.la}</div></div>
+      </div>
+      <span style="color:var(--brand);">➔</span>
+    </div>`;
+}
+
+function toggleGroup(headerEl, bodyId) {
+  const body = document.getElementById(bodyId);
+  const chev = document.getElementById('chev-' + bodyId);
+  const isOpen = body.classList.toggle('open');
+  chev.classList.toggle('open', isOpen);
+}
+
+function renderGruppen() {
+  const container = document.getElementById('groupTree');
+  container.innerHTML = categoryTree.map(node => renderGroupNode(node, 1)).join('');
+}
+
+// ---------- DETAIL ----------
+function openDetail(nr, fromPage) {
+  const p = plantsData.find(x => x.nr === nr);
+  if (!p) return;
+  lastListPage = fromPage;
+  document.getElementById('detailDe').innerText = p.de[0];
+  document.getElementById('detailLa').innerText = p.la;
+  document.getElementById('detailIcon').innerText = catIconLookup[p.cat] || '🌱';
+  document.getElementById('detailSynonyms').innerText = p.de.slice(1).join(', ') || '–';
+  document.getElementById('detailNr').innerText = 'Nr. ' + p.nr;
+  document.getElementById('detailBreadcrumb').innerHTML = `<b>${p.cat}</b>`;
+  const backBtn = document.getElementById('detailBackBtn');
+  backBtn.setAttribute('onclick', `switchPage('${fromPage}', '${fromPage === 'alle' ? 'Alle Pflanzen' : 'Pflanzengruppen'}')`);
+  backBtn.innerText = fromPage === 'alle' ? '← Alle Pflanzen' : '← Pflanzengruppen';
+  switchPage('detail', 'Pflanzen-Detail');
+}
+
+// ---------- LERNEN (Karteikarten, echte Daten, durchblätterbar) ----------
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+function buildLearnDeck() {
+  learnDeck = plantsData.map(p => p.nr);
+  shuffleArray(learnDeck);
+  learnPos = 0;
+}
+
+function shuffleLearnDeck() {
+  buildLearnDeck();
+  renderLearnCard();
+}
+
+function ensureLearnDeck() {
+  if (!learnDeck || learnDeck.length === 0) buildLearnDeck();
+}
+
+function currentLearnPlantObj() {
+  return plantsData.find(p => p.nr === learnDeck[learnPos]);
+}
+
+function renderLearnCard() {
+  const p = currentLearnPlantObj();
+  document.getElementById('learnModeBtn').innerText = learnModeDE ? "Modus: Deutsch → Latein" : "Modus: Latein → Deutsch";
+  document.getElementById('learnFront').innerText = learnModeDE ? p.de[0] : p.la;
+  document.getElementById('learnBack').innerText = learnModeDE ? p.la : p.de[0];
+  document.getElementById('learnBack').style.display = 'none';
+  document.getElementById('learnFlipBtn').innerText = 'Antwort anzeigen';
+  document.getElementById('learnPosition').innerText = `Karte ${learnPos + 1} von ${learnDeck.length}`;
+}
+
+function toggleLearnMode() {
+  learnModeDE = !learnModeDE;
+  renderLearnCard();
+}
+
+function toggleLearnCard() {
+  const el = document.getElementById('learnBack');
+  const isHidden = el.style.display === 'none';
+  el.style.display = isHidden ? 'block' : 'none';
+  document.getElementById('learnFlipBtn').innerText = isHidden ? 'Antwort verstecken' : 'Antwort anzeigen';
+}
+
+function nextLearnCard() {
+  learnPos = (learnPos + 1) % learnDeck.length;
+  renderLearnCard();
+}
+
+function prevLearnCard() {
+  learnPos = (learnPos - 1 + learnDeck.length) % learnDeck.length;
+  renderLearnCard();
+}
+
+// ---------- PRÜFUNG LEVEL 1 (Auswahl, echte Daten, zufällige Auswahl) ----------
+function newP1Question() {
+  currentP1Plant = randomPlant(currentP1Plant ? currentP1Plant.nr : undefined);
+  renderP1Question();
+}
+
+function renderP1Question() {
+  const p = currentP1Plant;
+  document.getElementById('p1ModeBtn').innerText = p1ModeDE ? "Modus: Deutsch → Latein wählen" : "Modus: Latein → Deutsch wählen";
+  document.getElementById('p1Question').innerText = p1ModeDE ? p.de[0] : p.la;
+
+  const distractors = randomDistractors(p, 2);
+  const options = [p, ...distractors];
+  for (let i = options.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [options[i], options[j]] = [options[j], options[i]];
+  }
+
+  const optsContainer = document.getElementById('p1Options');
+  optsContainer.innerHTML = options.map(opt => {
+    const label = p1ModeDE ? opt.la : opt.de[0];
+    const isCorrect = opt.nr === p.nr;
+    return `<button class="btn-main btn-option" onclick="checkAnswerLvl1(${isCorrect}, ${p.nr})">${label}</button>`;
+  }).join('');
+}
+
+function toggleP1Mode() {
+  p1ModeDE = !p1ModeDE;
+  newP1Question();
+}
+
+// ---------- PRÜFUNG LEVEL 2 (Schreiben, echte Daten, zufällige Auswahl) ----------
+function newP2Question() {
+  currentP2Plant = randomPlant(currentP2Plant ? currentP2Plant.nr : undefined);
+  renderP2Question();
+}
+
+function renderP2Question() {
+  const p = currentP2Plant;
+  document.getElementById('p2ModeBtn').innerText = p2ModeDE ? "Modus: Deutsch → Latein schreiben" : "Modus: Latein → Deutsch schreiben";
+  document.getElementById('p2Question').innerText = p2ModeDE ? p.de[0] : p.la;
+  document.getElementById('p2Input').value = "";
+}
+
+function toggleP2Mode() {
+  p2ModeDE = !p2ModeDE;
+  newP2Question();
+}
+
+function recordError(nr, isCorrect) {
+  if (isCorrect) {
+    if (!learnedPlants.includes(nr)) learnedPlants.push(nr);
+  } else {
+    errorStats[nr] = (errorStats[nr] || 0) + 1;
+  }
+  localStorage.setItem('learnedPlantsV2', JSON.stringify(learnedPlants));
+  localStorage.setItem('errorStatsV2', JSON.stringify(errorStats));
+  updateUI();
+}
+
+function showResult(isCorrect, onDone) {
+  const overlay = document.getElementById('resultOverlay');
+  const box = document.getElementById('resultBox');
+  box.className = 'result-box ' + (isCorrect ? 'correct' : 'incorrect');
+  document.getElementById('resultIcon').innerHTML = isCorrect ? '✓' : '✕';
+  document.getElementById('resultText').innerText = isCorrect ? 'Richtig' : 'Falsch';
+  overlay.style.display = 'flex';
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    if (onDone) onDone();
+  }, 1000);
+}
+
+function checkAnswerLvl1(isCorrect, nr) {
+  recordError(nr, isCorrect);
+  showResult(isCorrect, () => newP1Question());
+}
+
+function checkAnswerLvl2() {
+  const input = document.getElementById('p2Input').value.trim().toLowerCase();
+  const p = currentP2Plant;
+  let isCorrect;
+  if (p2ModeDE) {
+    isCorrect = input === p.la.toLowerCase();
+  } else {
+    isCorrect = p.de.some(name => name.toLowerCase() === input);
+  }
+  recordError(p.nr, isCorrect);
+  showResult(isCorrect, () => newP2Question());
+}
+
+// ---------- NAVIGATION ----------
+function switchPage(pageId, title) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + pageId).classList.add('active');
+  document.getElementById('headerTitle').innerText = title.toUpperCase();
+  const navMap = { home:'home', pflanzenliste:'pflanzenliste', alle:'pflanzenliste', gruppen:'pflanzenliste', detail: lastListPage === 'gruppen' ? 'pflanzenliste' : 'pflanzenliste', lernen:'lernen', pruefung1:'pruefung1', pruefung2:'pruefung2', fehler:'home' };
+  const activeNav = document.getElementById('nav-' + (navMap[pageId] || pageId));
+  if (activeNav) activeNav.classList.add('active');
+  if (pageId === 'alle') renderAlle();
+  if (pageId === 'gruppen') renderGruppen();
+  if (pageId === 'lernen') { ensureLearnDeck(); renderLearnCard(); }
+  if (pageId === 'pruefung1') newP1Question();
+  if (pageId === 'pruefung2') newP2Question();
+}
+
+function resetProgress() {
+  if (confirm('Lernfortschritt und Fehlerstatistik zurücksetzen?')) {
+    learnedPlants = [];
+    errorStats = {};
+    localStorage.clear();
+    updateUI();
+  }
+}
+
+renderAlleSidebar();
+updateUI();
+</script>
+</body>
+</html>
